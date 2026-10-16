@@ -38,11 +38,11 @@ jobs:
       - name: Run Typecheck & Tests
         run: |
           npm run typecheck
+          npm run build
           npm test
 
       - name: Build Web Diagnostics Suite
         run: |
-          npm run build
           npm run verify
 
       - name: Setup Pages
