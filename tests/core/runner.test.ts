@@ -1,9 +1,15 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { DiagnosticRunner } from '../../src/core/runner';
 import { DiagnosticStore } from '../../src/core/store';
 import { DiagnosticTest } from '../../src/core/types';
 
 describe('DiagnosticRunner Engine', () => {
+  beforeEach(() => {
+    if (typeof window !== 'undefined' && window.localStorage) {
+      window.localStorage.clear();
+    }
+  });
+
   it('registers and retrieves diagnostic tests', () => {
     const runner = new DiagnosticRunner();
     const mockTest: DiagnosticTest = {
@@ -248,6 +254,104 @@ describe('DiagnosticRunner Engine', () => {
   it('throws an error when runSingle is invoked with unknown test ID', async () => {
     const runner = new DiagnosticRunner();
     await expect(runner.runSingle('non_existent_id')).rejects.toThrow(/not found/);
+  });
+
+  it('cancels an active standalone runSingle execution and sets runnerState to ABORTED', async () => {
+    const store = new DiagnosticStore();
+    const runner = new DiagnosticRunner({ store });
+    let cancelCalled = false;
+
+    const longRunningTest: DiagnosticTest = {
+      id: 'long_test',
+      name: 'Long Running Test',
+      category: 'HARDWARE',
+      description: 'Takes a long time unless cancelled',
+      run: (signal) => {
+        return new Promise((resolve) => {
+          signal?.addEventListener('abort', () => {
+            resolve({
+              id: 'long_test',
+              name: 'Long Running Test',
+              category: 'HARDWARE',
+              status: 'SKIPPED',
+              summary: 'Cancelled via signal',
+              timestamp: Date.now(),
+            });
+          });
+        });
+      },
+      cancel: () => {
+        cancelCalled = true;
+      },
+    };
+
+    runner.registerTest(longRunningTest);
+    const runPromise = runner.runSingle('long_test');
+
+    expect(runner.getIsRunning()).toBe(true);
+    expect(store.getState().runnerState).toBe('RUNNING');
+    expect(store.getState().activeTestId).toBe('long_test');
+
+    runner.cancel();
+
+    const result = await runPromise;
+    expect(result.status).toBe('SKIPPED');
+    expect(cancelCalled).toBe(true);
+    expect(runner.getIsRunning()).toBe(false);
+    expect(store.getState().runnerState).toBe('ABORTED');
+    expect(store.getState().activeTestId).toBeNull();
+  });
+
+  it('restores runnerState to COMPLETED after standalone runSingle succeeds', async () => {
+    const store = new DiagnosticStore();
+    const runner = new DiagnosticRunner({ store });
+
+    const quickTest: DiagnosticTest = {
+      id: 'quick_test',
+      name: 'Quick Test',
+      category: 'HARDWARE',
+      description: 'Quick test',
+      run: async () => ({
+        id: 'quick_test',
+        name: 'Quick Test',
+        category: 'HARDWARE',
+        status: 'PASSED',
+        summary: 'All good',
+        timestamp: Date.now(),
+      }),
+    };
+
+    runner.registerTest(quickTest);
+    expect(store.getState().runnerState).toBe('IDLE');
+
+    const result = await runner.runSingle('quick_test');
+    expect(result.status).toBe('PASSED');
+    expect(runner.getIsRunning()).toBe(false);
+    expect(store.getState().runnerState).toBe('COMPLETED');
+    expect(store.getState().activeTestId).toBeNull();
+  });
+
+  it('prevents concurrent standalone runSingle invocations', async () => {
+    const runner = new DiagnosticRunner();
+    const slowTest: DiagnosticTest = {
+      id: 'slow',
+      name: 'Slow',
+      category: 'HARDWARE',
+      description: 'Slow',
+      run: () => new Promise((resolve) => setTimeout(resolve, 80)).then(() => ({
+        id: 'slow',
+        name: 'Slow',
+        category: 'HARDWARE',
+        status: 'PASSED',
+        summary: 'OK',
+        timestamp: Date.now(),
+      })),
+    };
+    runner.registerTest(slowTest);
+
+    const first = runner.runSingle('slow');
+    await expect(runner.runSingle('slow')).rejects.toThrow(/already in progress/);
+    await first;
   });
 
   it('returns empty results map when runAll has no matching tests', async () => {

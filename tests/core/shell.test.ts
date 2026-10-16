@@ -150,4 +150,87 @@ describe('Shell UI Component', () => {
     shell.unmount();
     expect(container.innerHTML).toBe('');
   });
+
+  it('keeps interactive test modal overlay mounted when test execution triggers store updates', async () => {
+    let testResolve: ((res: any) => void) | null = null;
+    const interactiveTest: DiagnosticTest = {
+      id: 'interactive_hw',
+      name: 'Interactive HW Test',
+      category: 'HARDWARE',
+      description: 'Modal test',
+      renderUI: (el: HTMLElement) => {
+        el.innerHTML = '<div id="interactive-content">Content Loaded</div>';
+      },
+      run: () => new Promise((resolve) => {
+        testResolve = resolve;
+      }),
+      cancel: vi.fn(),
+    };
+
+    runner.registerTest(interactiveTest);
+    store.setCategory('ALL');
+
+    const runBtn = container.querySelector('[data-run-test="interactive_hw"]') as HTMLButtonElement;
+    expect(runBtn).not.toBeNull();
+    runBtn.click();
+
+    // Verify modal overlay and content are present
+    const overlay = container.querySelector('#interactive-test-overlay');
+    expect(overlay).not.toBeNull();
+    expect(container.querySelector('#interactive-content')).not.toBeNull();
+
+    // Simulate store updates that trigger shell.render()
+    store.setState({ sunlightMode: true });
+    store.setState({ currentCategory: 'HARDWARE' });
+
+    // The overlay should STILL be present and NOT wiped out
+    expect(container.querySelector('#interactive-test-overlay')).not.toBeNull();
+    expect(container.querySelector('#interactive-content')).not.toBeNull();
+
+    // Now resolve test
+    testResolve!({
+      id: 'interactive_hw',
+      name: 'Interactive HW Test',
+      category: 'HARDWARE',
+      status: 'PASSED',
+      summary: 'Success',
+      timestamp: Date.now(),
+    });
+
+    await vi.waitFor(() => {
+      expect(container.querySelector('#interactive-test-overlay')).toBeNull();
+    });
+  });
+
+  it('cancels runner and closes modal when interactive test modal close button is clicked', async () => {
+    const cancelSpy = vi.fn();
+    const runnerCancelSpy = vi.spyOn(runner, 'cancel');
+
+    const interactiveTest: DiagnosticTest = {
+      id: 'interactive_cancel_test',
+      name: 'Interactive Cancel Test',
+      category: 'HARDWARE',
+      description: 'Cancel modal test',
+      renderUI: (el: HTMLElement) => {
+        el.innerHTML = '<div>Testing Modal Close</div>';
+      },
+      run: () => new Promise(() => {}),
+      cancel: cancelSpy,
+    };
+
+    runner.registerTest(interactiveTest);
+    store.setCategory('ALL');
+
+    const runBtn = container.querySelector('[data-run-test="interactive_cancel_test"]') as HTMLButtonElement;
+    runBtn.click();
+
+    expect(container.querySelector('#interactive-test-overlay')).not.toBeNull();
+
+    const closeBtn = container.querySelector('#btn-close-test-modal') as HTMLButtonElement;
+    expect(closeBtn).not.toBeNull();
+    closeBtn.click();
+
+    expect(runnerCancelSpy).toHaveBeenCalled();
+    expect(container.querySelector('#interactive-test-overlay')).toBeNull();
+  });
 });

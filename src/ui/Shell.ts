@@ -55,7 +55,7 @@ export class Shell {
 
     this.container.innerHTML = `
       <div id="shell-root" class="flex flex-col min-h-screen bg-[#090d16] text-slate-100 font-sans pb-safe transition-colors">
-        <header id="shell-header" class="pt-safe px-4 py-3 bg-[#111827] border-b border-[#1f2937] flex items-center justify-between sticky top-0 z-30 shadow-md"></header>
+        <header id="shell-header" class="pt-safe pl-safe pr-safe px-4 py-3 bg-[#111827] border-b border-[#1f2937] flex items-center justify-between sticky top-0 z-30 shadow-md"></header>
         <nav id="shell-nav" class="bg-[#0e1424] border-b border-[#1f2937] px-2 py-1 flex overflow-x-auto no-scrollbar space-x-1.5 z-20" aria-label="Diagnostic Categories"></nav>
         <main id="shell-main" class="flex-1 px-4 py-4 max-w-2xl w-full mx-auto space-y-4"></main>
         <footer id="shell-footer" class="mt-auto px-4 py-2.5 bg-[#111827] border-t border-[#1f2937] flex items-center justify-between text-xs sticky bottom-0 z-30"></footer>
@@ -156,7 +156,7 @@ export class Shell {
                 ? `<button id="btn-cancel-suite" class="min-h-touch px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-bold text-xs rounded-lg shadow">Cancel</button>`
                 : `<button id="btn-run-all" class="min-h-touch px-4 py-2 bg-sky-500 hover:bg-sky-400 text-black font-extrabold text-xs rounded-lg shadow">Run ${state.currentCategory === 'ALL' ? 'All' : state.currentCategory}</button>`
             }
-            <button id="btn-reset-session" class="min-h-touch px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs rounded-lg border border-slate-700" title="Reset Session">
+            <button id="btn-reset-session" class="min-h-touch min-w-touch px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs rounded-lg border border-slate-700 flex items-center justify-center" title="Reset Session">
               ↺
             </button>
           </div>
@@ -272,7 +272,7 @@ export class Shell {
       <div class="p-4 rounded-xl bg-[#111827] border border-[#1f2937] sunlight-card transition-all" data-testid="test-card-${id}">
         <div class="flex items-start justify-between">
           <div class="space-y-1">
-            <div class="flex items-center space-x-2">
+            <div class="flex items-center space-x-2 flex-wrap">
               <span class="text-sm font-bold text-white">${name}</span>
               <span class="px-1.5 py-0.5 text-[9px] font-semibold uppercase rounded bg-slate-800 text-slate-400 border border-slate-700">${category}</span>
               <span class="px-2 py-0.5 text-[10px] font-extrabold uppercase rounded-full border ${badgeClass}">

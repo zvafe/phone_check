@@ -68,6 +68,18 @@ describe('Touch Diagnostics Suite', () => {
       const result = await runPromise;
       expect(result.status).toBe('SKIPPED');
     });
+
+    it('resolves with SKIPPED when cancel() is called directly', async () => {
+      const test = new TouchGridTest();
+      test.renderUI(container);
+
+      const runPromise = test.run();
+      test.cancel();
+
+      const result = await runPromise;
+      expect(result.status).toBe('SKIPPED');
+      expect(result.summary).toContain('Touch grid test cancelled');
+    });
   });
 
   describe('MultiTouchTest', () => {
@@ -93,6 +105,33 @@ describe('Touch Diagnostics Suite', () => {
 
       const result = await runPromise;
       expect(result.id).toBe('hw-multi-touch');
+    });
+
+    it('fails when completed with 0 or 1 touch recorded in interactive mode', async () => {
+      const test = new MultiTouchTest();
+      test.renderUI(container);
+
+      const runPromise = test.run();
+
+      const btnDone = container.querySelector('#multitouch-btn-done') as HTMLButtonElement;
+      btnDone.click();
+
+      const result = await runPromise;
+      expect(result.status).toBe('FAILED');
+      expect(result.score).toBe(20);
+      expect(result.summary).toContain('Multi-touch failed');
+    });
+
+    it('resolves with SKIPPED when cancel() is called', async () => {
+      const test = new MultiTouchTest();
+      test.renderUI(container);
+
+      const runPromise = test.run();
+      test.cancel();
+
+      const result = await runPromise;
+      expect(result.status).toBe('SKIPPED');
+      expect(result.summary).toContain('Multi-touch test cancelled');
     });
   });
 
@@ -135,6 +174,18 @@ describe('Touch Diagnostics Suite', () => {
       const result = await runPromise;
       expect(result.status).toBe('FAILED');
       expect(result.criticalRedFlag).toBe(true);
+    });
+
+    it('resolves with SKIPPED when cancel() is called directly', async () => {
+      const test = new GhostTouchTest();
+      test.renderUI(container);
+
+      const runPromise = test.run();
+      test.cancel();
+
+      const result = await runPromise;
+      expect(result.status).toBe('SKIPPED');
+      expect(result.summary).toContain('Ghost touch test cancelled');
     });
   });
 });

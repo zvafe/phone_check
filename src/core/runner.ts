@@ -92,10 +92,15 @@ export class DiagnosticRunner {
     this.activeSingleAbortController = testAbortController;
     const startTime = Date.now();
 
+    // Ensure test.cancel is invoked whenever testAbortController aborts (parent cancel, runner cancel, or timeout)
+    const onTestAbort = () => {
+      test.cancel?.();
+    };
+    testAbortController.signal.addEventListener('abort', onTestAbort, { once: true });
+
     // If runner-level abort is active, listen to it
     const onParentAbort = () => {
       testAbortController.abort();
-      test.cancel?.();
     };
     if (this.abortController) {
       if (this.abortController.signal.aborted) {
@@ -117,7 +122,6 @@ export class DiagnosticRunner {
     const timeoutPromise = new Promise<TestResult>((resolve) => {
       timeoutHandle = setTimeout(() => {
         testAbortController.abort();
-        test.cancel?.();
         resolve({
           id: test.id,
           name: test.name,

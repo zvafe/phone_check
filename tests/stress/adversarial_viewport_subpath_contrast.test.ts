@@ -323,10 +323,9 @@ describe('Challenger 2 Adversarial Stress Suite', () => {
       shell.mount(container);
       const resetBtn = container.querySelector('#btn-reset-session') as HTMLElement;
 
-      // Note: btn-reset-session has min-h-touch but lacks min-w-touch
+      // Note: btn-reset-session now includes min-w-touch
       const hasMinWTouch = resetBtn.classList.contains('min-w-touch');
-      // We document this empirical observation:
-      expect(hasMinWTouch).toBe(false);
+      expect(hasMinWTouch).toBe(true);
     });
 
     it('evaluates safe-area inset classes across orientations', () => {
@@ -342,10 +341,9 @@ describe('Challenger 2 Adversarial Stress Suite', () => {
       const hasLeftSafe = header.className.includes('pl-safe') || wrapper.className.includes('pl-safe');
       const hasRightSafe = header.className.includes('pr-safe') || wrapper.className.includes('pr-safe');
 
-      // In landscape (844x390), notch or dynamic island can occlude content without horizontal safe areas
-      // Documenting whether horizontal safe areas are present on outer shell:
-      expect(hasLeftSafe).toBe(false);
-      expect(hasRightSafe).toBe(false);
+      // Horizontal safe areas are present on outer shell header
+      expect(hasLeftSafe).toBe(true);
+      expect(hasRightSafe).toBe(true);
     });
 
     it('stresses test card layout on 320px viewport with long title and badges', () => {
@@ -370,9 +368,9 @@ describe('Challenger 2 Adversarial Stress Suite', () => {
       const badgeRow = longCard.querySelector('.space-y-1 > div') as HTMLElement;
       expect(badgeRow).not.toBeNull();
 
-      // Verify whether the badge row has flex-wrap to prevent horizontal overflow on 320px
+      // Verify that the badge row has flex-wrap to prevent horizontal overflow on 320px
       const hasFlexWrap = badgeRow.classList.contains('flex-wrap');
-      expect(hasFlexWrap).toBe(false);
+      expect(hasFlexWrap).toBe(true);
     });
   });
 
