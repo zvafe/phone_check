@@ -1,7 +1,8 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, beforeAll } from 'vitest';
 import fs from 'fs';
 import path from 'path';
 import http from 'http';
+import { execSync } from 'child_process';
 import { AddressInfo } from 'net';
 import { Shell } from '../../src/ui/Shell';
 import { DiagnosticRunner } from '../../src/core/runner';
@@ -49,6 +50,12 @@ function getContrastRatio(hex1: string, hex2: string): number {
 
 describe('Challenger 2 Adversarial Stress Suite', () => {
   const distDir = path.resolve(process.cwd(), 'dist');
+
+  beforeAll(() => {
+    if (!fs.existsSync(distDir) || !fs.existsSync(path.join(distDir, 'index.html'))) {
+      execSync('npm run build', { stdio: 'pipe' });
+    }
+  });
 
   // =========================================================================
   // 1. SUBPATH DEPLOYMENT & STATIC BUILD INTEGRITY
