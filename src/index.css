@@ -1,0 +1,130 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --sat: env(safe-area-inset-top, 0px);
+    --sab: env(safe-area-inset-bottom, 0px);
+    --sal: env(safe-area-inset-left, 0px);
+    --sar: env(safe-area-inset-right, 0px);
+  }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    min-height: 100%;
+    min-height: 100dvh;
+    background-color: #090d16;
+    color: #f1f5f9;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overscroll-behavior-y: none;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+}
+
+@layer utilities {
+  .pt-safe {
+    padding-top: max(16px, env(safe-area-inset-top, 0px));
+  }
+  .pb-safe {
+    padding-bottom: max(16px, env(safe-area-inset-bottom, 0px));
+  }
+  .pl-safe {
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+  }
+  .pr-safe {
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+  }
+  .min-h-touch {
+    min-height: 48px;
+  }
+  .min-w-touch {
+    min-width: 48px;
+  }
+}
+
+/* ========================================================
+   Outdoor Sunlight High-Contrast Mode (>12:1 Contrast Ratio)
+   Pure Black (#000000), Pure White (#FFFFFF), Amber (#FFB800)
+   ======================================================== */
+html.sunlight-mode,
+html.sunlight-mode body {
+  background-color: #000000 !important;
+  color: #ffffff !important;
+}
+
+html.sunlight-mode .sunlight-card,
+html.sunlight-mode [data-sunlight-card] {
+  background-color: #000000 !important;
+  border: 2px solid #ffffff !important;
+  box-shadow: none !important;
+  color: #ffffff !important;
+}
+
+html.sunlight-mode .sunlight-amber {
+  color: #ffb800 !important;
+  border-color: #ffb800 !important;
+}
+
+html.sunlight-mode .sunlight-green {
+  color: #00ff66 !important;
+  border-color: #00ff66 !important;
+}
+
+html.sunlight-mode .sunlight-red {
+  color: #ff0033 !important;
+  border-color: #ff0033 !important;
+}
+
+html.sunlight-mode button,
+html.sunlight-mode .touch-target {
+  border: 2px solid #ffffff !important;
+  font-weight: 700 !important;
+}
+
+html.sunlight-mode input,
+html.sunlight-mode select {
+  background-color: #000000 !important;
+  color: #ffffff !important;
+  border: 2px solid #ffffff !important;
+}
+
+/* ========================================================
+   Print-Friendly PDF & Receipt Layout (@media print)
+   ======================================================== */
+@media print {
+  body {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+  }
+
+  header, nav, footer, #sunlight-toggle-btn, #btn-run-all, #btn-cancel-suite, #btn-reset-session, #btn-print-report, #btn-download-json, #btn-share-report, #btn-close-report, #btn-close-report-bottom, [data-run-test] {
+    display: none !important;
+  }
+
+  #diagnostic-report-modal {
+    position: static !important;
+    background-color: transparent !important;
+    padding: 0 !important;
+  }
+
+  #diagnostic-report-modal > div {
+    border: none !important;
+    box-shadow: none !important;
+    background-color: #ffffff !important;
+    color: #000000 !important;
+    max-height: none !important;
+  }
+
+  .sunlight-card, [data-sunlight-card] {
+    border: 1px solid #cccccc !important;
+    background-color: #ffffff !important;
+    color: #000000 !important;
+  }
+}
+

@@ -1,0 +1,26 @@
+{
+  "name": "web-diagnostic-suite",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit",
+    "verify": "node scripts/verify-build.mjs"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.5",
+    "autoprefixer": "^10.4.20",
+    "happy-dom": "^15.11.7",
+    "postcss": "^8.4.47",
+    "tailwindcss": "^3.4.14",
+    "typescript": "^5.6.3",
+    "vite": "^5.4.11",
+    "vite-plugin-pwa": "^0.20.5",
+    "vitest": "^2.1.4"
+  }
+}
